@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Tick-IT - Flat, clean, and simple task manager.">
+    <title>Tick-IT — Task Management</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="brand">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-square-check"></i>
+                </div>
+                <h2>Tick-IT</h2>
+            </div>
+
+            <div class="stats-card">
+                <div class="stats-header">
+                    <h3>Progress</h3>
+                    <span id="progress-percentage">0%</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="progress-bar-fill"></div>
+                </div>
+                <div class="stats-details">
+                    <div class="stat-item">
+                        <span class="stat-num" id="stat-completed">0</span>
+                        <span class="stat-label">Completed</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-num" id="stat-active">0</span>
+                        <span class="stat-label">Pending</span>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="filters-nav">
+                <h4>Categories</h4>
+                <ul class="filter-list" id="category-filters">
+                    <li class="filter-item active" data-filter="category" data-value="all" id="cat-all">
+                        <i class="fa-solid fa-layer-group"></i> <span>All Categories</span>
+                    </li>
+                    <li class="filter-item" data-filter="category" data-value="Personal" id="cat-personal">
+                        <i class="fa-solid fa-user"></i> <span>Personal</span>
+                    </li>
+                    <li class="filter-item" data-filter="category" data-value="Work" id="cat-work">
+                        <i class="fa-solid fa-briefcase"></i> <span>Work</span>
+                    </li>
+                    <li class="filter-item" data-filter="category" data-value="Shopping" id="cat-shopping">
+                        <i class="fa-solid fa-cart-shopping"></i> <span>Shopping</span>
+                    </li>
+                    <li class="filter-item" data-filter="category" data-value="Health" id="cat-health">
+                        <i class="fa-solid fa-heart-pulse"></i> <span>Health</span>
+                    </li>
+                    <li class="filter-item" data-filter="category" data-value="Ideas" id="cat-ideas">
+                        <i class="fa-solid fa-lightbulb"></i> <span>Ideas</span>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebar-toggle-btn" aria-label="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <h1>Dashboard</h1>
+                </div>
+                <div class="header-right">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="search-input" placeholder="Search tasks...">
+                    </div>
+                    <button class="btn btn-primary" id="btn-open-modal">
+                        <i class="fa-solid fa-plus"></i> Add Task
+                    </button>
+                </div>
+            </header>
+
+            <div class="tasks-container">
+                <section class="tasks-section" id="active-tasks-section">
+                    <div class="section-title-bar">
+                        <h2>Pending Tasks</h2>
+                        <span class="task-count-badge" id="active-count-badge">0</span>
+                    </div>
+                    <div class="tasks-grid" id="active-tasks-list">
+                        <div class="loading-spinner">
+                            <i class="fa-solid fa-circle-notch fa-spin"></i> Loading tasks...
+                        </div>
+                    </div>
+                </section>
+
+                <section class="tasks-section" id="completed-tasks-section">
+                    <div class="section-title-bar">
+                        <h2>Completed Tasks</h2>
+                        <div class="title-right">
+                            <span class="task-count-badge badge-success" id="completed-count-badge">0</span>
+                        </div>
+                    </div>
+                    <div class="tasks-grid" id="completed-tasks-list"></div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+   <div class="modal" id="task-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modal-title">Create New Task</h2>
+            <button class="close-btn" id="btn-close-modal">&times;</button>
+        </div>
+        <form id="task-form">
+            <div class="form-group">
+                <label for="task-title">Task Title</label>
+                <input type="text" id="task-title" name="task-title" required placeholder="What needs to be done?">
+            </div>
+
+            <div class="form-group">
+                <label for="task-desc">Description</label>
+                <textarea id="task-desc" name="task-desc" rows="3" placeholder="Add some notes or details..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="task-category">Category</label>
+                <select id="task-category" name="task-category">
+                    <option value="Personal">Personal</option>
+                    <option value="Work">Work</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Health">Health</option>
+                    <option value="Ideas">Ideas</option>
+                </select>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="btn-cancel-modal">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="btn-save-task">Save Task</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
