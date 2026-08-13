@@ -5,7 +5,7 @@ Dim shell, projectFolder, appScript
 Set shell = CreateObject("WScript.Shell")
 
 projectFolder = CreateObject("Scripting.FileSystemObject").GetParentFolderName(WScript.ScriptFullName)
-appScript = projectFolder & "\Tick-IT.pyw"
+appScript = projectFolder & "\backend\Tick-IT.pyw"
 
 ' pyw.exe is Python's windowless launcher.  The final two arguments hide the
 ' launcher itself and let this script return immediately.

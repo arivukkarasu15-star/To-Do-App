@@ -11,8 +11,8 @@ import webbrowser
 import tkinter.messagebox as messagebox
 
 
-ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-DATABASE_PATH = os.path.join(ROOT_DIR, "backend", "tasks.db")
+PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATABASE_PATH = os.path.join(PROJECT_DIR, "backend", "tasks.db")
 
 
 def ensure_flask():
@@ -130,7 +130,7 @@ def start_app():
     from flask import Flask, jsonify, request
 
     initialise_database()
-    app = Flask(__name__, static_folder=os.path.join(ROOT_DIR, "frontend"), static_url_path="")
+    app = Flask(__name__, static_folder=os.path.join(PROJECT_DIR, "frontend"), static_url_path="")
 
     @app.get("/")
     def index():

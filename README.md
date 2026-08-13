@@ -1,25 +1,25 @@
 # Tick-IT
 
-A lightweight task manager that lives on your desktop — no internet required, no accounts, just your tasks.
+Tick-IT is a small desktop task manager for keeping track of everyday work.
+There is no account or cloud setup — your tasks stay on your computer.
 
-## What it does
+## Features
 
-- Organize tasks into categories like Personal, Work, Shopping, Health, and Ideas
-- Keep each task focused with a title, details, and category
-- Opens in its own window so it feels like a real app, not a browser tab
-- Starts and stops automatically — just open and close the window
+- Create, edit, complete, and delete tasks
+- Sort tasks into Personal, Work, Shopping, Health, or Ideas
+- Search tasks and filter them by category
+- See your completed and pending task count at a glance
 
-## Tech Stack
+## Running the app
 
-- **Backend**: Python 3, Flask, SQLite3
-- **Frontend**: HTML5, CSS3, Vanilla ES6 JavaScript, FontAwesome 6
+On Windows, double-click `Run Tick-IT.vbs`.
 
-## Getting started
+The first launch installs Flask automatically, so it needs an internet
+connection. After that, the app opens normally without showing a Command
+Prompt window.
 
-Double-click `Run Tick-IT.vbs`. It installs Flask automatically the first time,
-then opens the app.
+## Project files
 
-### One-click launch (Windows)
-
-Double-click `Run Tick-IT.vbs`. It starts the app without opening a Command
-Prompt window. The first launch needs an internet connection to install Flask.
+- `backend/Tick-IT.pyw` contains the app and database code.
+- `frontend` contains the page design and JavaScript.
+- `backend/tasks.db` stores your tasks locally.
