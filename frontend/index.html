@@ -73,7 +73,7 @@
         <main class="main-content">
             <header class="content-header">
                 <div class="header-left">
-                    <button class="sidebar-toggle" id="sidebar-toggle-btn" aria-label="Toggle Sidebar">
+                    <button class="sidebar-toggle" id="sidebar-toggle-btn" aria-label="Toggle sidebar">
                         <i class="fa-solid fa-bars"></i>
                     </button>
                     <h1>Dashboard</h1>
@@ -150,6 +150,21 @@
         </form>
     </div>
 </div>
+
+    <div class="modal" id="delete-modal" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+        <div class="modal-content delete-modal-content">
+            <div class="modal-header">
+                <h2 id="delete-modal-title"><i class="fa-solid fa-triangle-exclamation"></i> Delete task?</h2>
+            </div>
+            <div class="delete-modal-body">
+                <p>This task and its subtasks will be permanently deleted.</p>
+            </div>
+            <div class="modal-footer delete-modal-footer">
+                <button type="button" class="btn btn-secondary" id="btn-cancel-delete">Cancel</button>
+                <button type="button" class="btn btn-danger" id="btn-confirm-delete">Delete Task</button>
+            </div>
+        </div>
+    </div>
 
     <div class="toast-container" id="toast-container"></div>
 

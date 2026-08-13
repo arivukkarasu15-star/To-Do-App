@@ -1,6 +1,7 @@
 let tasks = [];
 let activeFilters = { category: 'all', search: '' };
 let editingTaskId = null;
+let deletingTaskId = null;
 
 const escapeHtml = str => str ? str.replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])) : '';
 
@@ -57,25 +58,8 @@ const api = {
         }
     },
     async delete(id) {
-        if (!confirm('Delete this task?')) return;
         if (await this.request(`/api/tasks/${id}`, 'DELETE')) {
             showToast('Task deleted', 'danger');
-            this.get();
-        }
-    },
-    async addSub(taskId, title) {
-        if (await this.request(`/api/tasks/${taskId}/subtasks`, 'POST', { title })) {
-            this.get();
-        }
-    },
-    async toggleSub(id, isChecked) {
-        const status = isChecked ? 'completed' : 'active';
-        if (await this.request(`/api/subtasks/${id}`, 'PUT', { status })) {
-            this.get();
-        }
-    },
-    async deleteSub(id) {
-        if (await this.request(`/api/subtasks/${id}`, 'DELETE')) {
             this.get();
         }
     }
@@ -114,17 +98,6 @@ function render() {
     const buildCard = t => {
         const isDone = t.status === 'completed';
 
-        const subsHTML = (t.subtasks || []).map(s => `
-            <li class="subtask-item">
-                <label class="subtask-check-label">
-                    <input type="checkbox" ${s.status === 'completed' ? 'checked' : ''} onchange="api.toggleSub(${s.id}, this.checked)">
-                    <span class="subtask-checkbox"><i class="fa-solid fa-check"></i></span>
-                    <span class="subtask-title-text">${escapeHtml(s.title)}</span>
-                </label>
-                <button class="action-btn delete-subtask-btn" onclick="api.deleteSub(${s.id})"><i class="fa-solid fa-trash-can"></i></button>
-            </li>
-        `).join('');
-
         return `
             <div class="task-card">
                 <div class="task-card-header">
@@ -135,20 +108,13 @@ function render() {
                     </label>
                     <div class="task-actions">
                         <button class="action-btn" onclick="openEdit(${t.id})"><i class="fa-solid fa-pen"></i></button>
-                        <button class="action-btn delete-btn" onclick="api.delete(${t.id})"><i class="fa-solid fa-trash-can"></i></button>
+                        <button class="action-btn delete-btn" onclick="openDeleteModal(${t.id})" aria-label="Delete task"><i class="fa-solid fa-trash-can"></i></button>
                     </div>
                 </div>
                 ${t.description ? `<p class="task-desc">${escapeHtml(t.description)}</p>` : ''}
                 <div class="task-metadata">
                     <span class="meta-tag"><i class="fa-solid fa-tag"></i> ${escapeHtml(t.category)}</span>
                 </div>
-                ${t.subtasks?.length ? `<div class="subtasks-section"><ul class="subtask-list">${subsHTML}</ul></div>` : ''}
-                ${!isDone ? `
-                    <form class="add-subtask-form" onsubmit="event.preventDefault(); api.addSub(${t.id}, this.elements[0].value); this.reset();">
-                        <input type="text" placeholder="Add subtask..." required>
-                        <button type="submit"><i class="fa-solid fa-plus"></i></button>
-                    </form>
-                ` : ''}
             </div>
         `;
     };
@@ -198,13 +164,35 @@ function closeModal() {
     if (modal) modal.classList.remove('open');
 }
 
+function openDeleteModal(id) {
+    deletingTaskId = id;
+    const modal = document.getElementById('delete-modal');
+    if (modal) modal.classList.add('open');
+}
+
+function closeDeleteModal() {
+    deletingTaskId = null;
+    const modal = document.getElementById('delete-modal');
+    if (modal) modal.classList.remove('open');
+}
+
+function confirmDelete() {
+    if (deletingTaskId === null) return;
+    const id = deletingTaskId;
+    closeDeleteModal();
+    api.delete(id);
+}
+
 // Setup Application Listeners — runs AFTER DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     const btnOpen = document.getElementById('btn-open-modal');
     const btnClose = document.getElementById('btn-close-modal');
     const btnCancel = document.getElementById('btn-cancel-modal');
-    const sidebarToggle = document.getElementById('toggle-sidebar-btn');
+    const sidebarToggle = document.getElementById('sidebar-toggle-btn');
     const modal = document.getElementById('task-modal');
+    const deleteModal = document.getElementById('delete-modal');
+    const btnConfirmDelete = document.getElementById('btn-confirm-delete');
+    const btnCancelDelete = document.getElementById('btn-cancel-delete');
     const form = document.getElementById('task-form');
     const searchInput = document.getElementById('search-input');
 
@@ -212,6 +200,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnClose) btnClose.onclick = closeModal;
     if (btnCancel) btnCancel.onclick = closeModal;
     if (modal) modal.onclick = e => { if (e.target === modal) closeModal(); };
+    if (btnConfirmDelete) btnConfirmDelete.onclick = confirmDelete;
+    if (btnCancelDelete) btnCancelDelete.onclick = closeDeleteModal;
+    if (deleteModal) deleteModal.onclick = e => { if (e.target === deleteModal) closeDeleteModal(); };
+
+    document.onkeydown = e => {
+        if (e.key === 'Escape') {
+            closeModal();
+            closeDeleteModal();
+        }
+    };
 
     if (form) {
         form.onsubmit = e => {

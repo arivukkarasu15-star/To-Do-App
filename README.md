@@ -5,7 +5,7 @@ A lightweight task manager that lives on your desktop — no internet required, 
 ## What it does
 
 - Organize tasks into categories like Personal, Work, Shopping, Health, and Ideas
-- Break bigger tasks into subtasks and check them off as you go
+- Keep each task focused with a title, details, and category
 - Opens in its own window so it feels like a real app, not a browser tab
 - Starts and stops automatically — just open and close the window
 
@@ -16,11 +16,10 @@ A lightweight task manager that lives on your desktop — no internet required, 
 
 ## Getting started
 
-Install the one dependency, then run it:
+Double-click `Run Tick-IT.vbs`. It installs Flask automatically the first time,
+then opens the app.
 
-```bash
-pip install Flask
-python run.py
-```
+### One-click launch (Windows)
 
-That's it. The app will open on its own.
+Double-click `Run Tick-IT.vbs`. It starts the app without opening a Command
+Prompt window. The first launch needs an internet connection to install Flask.
