@@ -97,6 +97,13 @@ function render() {
 
     const buildCard = t => {
         const isDone = t.status === 'completed';
+        const categoryClass = {
+            Personal: 'category-personal',
+            Work: 'category-work',
+            Shopping: 'category-shopping',
+            Health: 'category-health',
+            Ideas: 'category-ideas'
+        }[t.category] || 'category-default';
 
         return `
             <div class="task-card">
@@ -113,7 +120,7 @@ function render() {
                 </div>
                 ${t.description ? `<p class="task-desc">${escapeHtml(t.description)}</p>` : ''}
                 <div class="task-metadata">
-                    <span class="meta-tag"><i class="fa-solid fa-tag"></i> ${escapeHtml(t.category)}</span>
+                    <span class="meta-tag ${categoryClass}"><i class="fa-solid fa-tag"></i> ${escapeHtml(t.category)}</span>
                 </div>
             </div>
         `;
