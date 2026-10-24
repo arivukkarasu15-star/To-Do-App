@@ -2,6 +2,20 @@ let tasks = [];
 let activeFilters = { category: 'all', search: '' };
 let editingTaskId = null;
 let deletingTaskId = null;
+let hostedMode = false;
+
+function getHostedTasks() {
+    try {
+        return JSON.parse(localStorage.getItem('tick-it-tasks') || '[]');
+    } catch (err) {
+        console.error('Could not read saved tasks:', err);
+        return [];
+    }
+}
+
+function saveHostedTasks(items) {
+    localStorage.setItem('tick-it-tasks', JSON.stringify(items));
+}
 
 const escapeHtml = str => str ? str.replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])) : '';
 
@@ -32,11 +46,30 @@ const api = {
         }
     },
     async get() {
-        const data = await this.request('/api/tasks');
-        tasks = data || [];
+        const data = hostedMode ? null : await this.request('/api/tasks');
+        if (Array.isArray(data)) {
+            tasks = data;
+        } else {
+            hostedMode = true;
+            tasks = getHostedTasks();
+        }
         render();
     },
     async save(taskData) {
+        if (hostedMode) {
+            const items = getHostedTasks();
+            if (editingTaskId) {
+                const index = items.findIndex(task => task.id === editingTaskId);
+                if (index !== -1) items[index] = { ...items[index], ...taskData };
+            } else {
+                items.unshift({ id: Date.now(), status: 'active', priority: 'medium', due_date: null, ...taskData });
+            }
+            saveHostedTasks(items);
+            showToast(editingTaskId ? 'Task updated' : 'Task created');
+            closeModal();
+            this.get();
+            return;
+        }
         const url = editingTaskId ? `/api/tasks/${editingTaskId}` : '/api/tasks';
         const method = editingTaskId ? 'PUT' : 'POST';
 
@@ -53,11 +86,22 @@ const api = {
     },
     async toggle(id, currentStatus) {
         const nextStatus = currentStatus === 'completed' ? 'active' : 'completed';
+        if (hostedMode) {
+            saveHostedTasks(getHostedTasks().map(task => task.id === id ? { ...task, status: nextStatus } : task));
+            this.get();
+            return;
+        }
         if (await this.request(`/api/tasks/${id}`, 'PUT', { status: nextStatus })) {
             this.get();
         }
     },
     async delete(id) {
+        if (hostedMode) {
+            saveHostedTasks(getHostedTasks().filter(task => task.id !== id));
+            showToast('Task deleted', 'danger');
+            this.get();
+            return;
+        }
         if (await this.request(`/api/tasks/${id}`, 'DELETE')) {
             showToast('Task deleted', 'danger');
             this.get();
@@ -196,6 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnClose = document.getElementById('btn-close-modal');
     const btnCancel = document.getElementById('btn-cancel-modal');
     const sidebarToggle = document.getElementById('sidebar-toggle-btn');
+    const sidebarBackdrop = document.getElementById('sidebar-backdrop');
     const modal = document.getElementById('task-modal');
     const deleteModal = document.getElementById('delete-modal');
     const btnConfirmDelete = document.getElementById('btn-confirm-delete');
@@ -211,10 +256,22 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnCancelDelete) btnCancelDelete.onclick = closeDeleteModal;
     if (deleteModal) deleteModal.onclick = e => { if (e.target === deleteModal) closeDeleteModal(); };
 
+    const closeSidebar = () => {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) sidebar.classList.remove('open');
+        if (sidebarBackdrop) sidebarBackdrop.classList.remove('visible');
+        if (sidebarToggle) {
+            sidebarToggle.setAttribute('aria-expanded', 'false');
+            sidebarToggle.setAttribute('aria-label', 'Open categories');
+        }
+        document.body.classList.remove('sidebar-open');
+    };
+
     document.onkeydown = e => {
         if (e.key === 'Escape') {
             closeModal();
             closeDeleteModal();
+            closeSidebar();
         }
     };
 
@@ -234,15 +291,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sidebarToggle) {
         sidebarToggle.onclick = () => {
             const sidebar = document.getElementById('sidebar');
-            if (sidebar) sidebar.classList.toggle('open');
+            const isOpen = sidebar && sidebar.classList.toggle('open');
+            if (sidebarBackdrop) sidebarBackdrop.classList.toggle('visible', Boolean(isOpen));
+            sidebarToggle.setAttribute('aria-expanded', String(Boolean(isOpen)));
+            sidebarToggle.setAttribute('aria-label', isOpen ? 'Close categories' : 'Open categories');
+            document.body.classList.toggle('sidebar-open', Boolean(isOpen));
         };
     }
+    if (sidebarBackdrop) sidebarBackdrop.onclick = closeSidebar;
 
     document.querySelectorAll('.filter-item').forEach(item => {
         item.onclick = () => {
             document.querySelectorAll('.filter-item').forEach(el => el.classList.remove('active'));
             item.classList.add('active');
             activeFilters.category = item.dataset.value;
+            closeSidebar();
             render();
         };
     });

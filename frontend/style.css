@@ -27,6 +27,7 @@ body {
 .app-container {
     display: flex;
     min-height: 100vh;
+    min-height: 100dvh;
 }
 
 .sidebar {
@@ -162,6 +163,7 @@ body {
 
 .main-content {
     flex: 1;
+    min-width: 0;
     padding: 40px;
     display: flex;
     flex-direction: column;
@@ -311,7 +313,7 @@ body {
 .tasks-grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 24px;
+    gap: 16px;
 }
 
 .task-card {
@@ -319,7 +321,7 @@ body {
     border: 1px solid var(--border-color);
     border-radius: 12px;
     min-height: 0;
-    padding: 18px 24px;
+    padding: 18px 20px;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -753,6 +755,10 @@ body {
 .toast-success i { color: var(--color-success); }
 .toast-danger i { color: var(--color-danger); }
 
+.sidebar-backdrop {
+    display: none;
+}
+
 .empty-state {
     grid-column: 1 / -1;
     text-align: center;
@@ -776,6 +782,11 @@ body {
         bottom: 0;
         background: var(--bg-app);
         z-index: 1001;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding-top: max(24px, env(safe-area-inset-top, 0px));
+        padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
+        box-shadow: 16px 0 40px rgba(0, 0, 0, 0.28);
     }
     .sidebar.open {
         transform: translateX(280px);
@@ -783,14 +794,169 @@ body {
     .sidebar-toggle {
         display: flex;
     }
+
+    .sidebar-backdrop.visible {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        border: 0;
+        background: rgba(2, 6, 23, 0.62);
+        backdrop-filter: blur(2px);
+    }
+
+    body.sidebar-open {
+        overflow: hidden;
+    }
+
+    .main-content {
+        padding: 32px;
+    }
 }
 
-@media (max-width: 640px) {
+@media (min-width: 1200px) {
     .tasks-grid {
-        grid-template-columns: minmax(0, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 720px) {
+    .main-content {
+        padding: 24px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+        gap: 24px;
+    }
+
+    .content-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .header-left {
+        width: 100%;
+    }
+
+    .header-left h1 {
+        font-size: 24px;
+    }
+
+    .header-right {
+        width: 100%;
+        gap: 10px;
+    }
+
+    .search-box {
+        width: auto;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .btn {
+        min-height: 44px;
+        justify-content: center;
     }
 
     .task-card {
-        padding: 20px;
+        padding: 16px;
+    }
+
+    .task-card-header {
+        align-items: flex-start;
+    }
+
+    .task-title {
+        overflow-wrap: anywhere;
+    }
+
+    .task-metadata {
+        flex-wrap: wrap;
+        padding-left: 30px;
+    }
+
+    .action-btn {
+        width: 36px;
+        height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal {
+        align-items: flex-end;
+        padding-top: max(12px, env(safe-area-inset-top, 0px));
+    }
+
+    .modal-content {
+        max-height: 100%;
+        overflow-y: auto;
+        border-radius: 16px 16px 0 0;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        transform: translateY(16px);
+    }
+
+    .modal.open .modal-content {
+        transform: translateY(0);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea,
+    .search-box input {
+        font-size: 16px;
+    }
+
+    .toast-container {
+        left: 16px;
+        right: 16px;
+        bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    }
+}
+
+@media (max-width: 420px) {
+    .main-content {
+        padding: 18px 14px calc(20px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .header-right {
+        flex-wrap: wrap;
+    }
+
+    .search-box {
+        flex-basis: 100%;
+    }
+
+    .header-right .btn {
+        width: 100%;
+    }
+
+    .task-card-header {
+        gap: 6px;
+    }
+
+    .task-title {
+        font-size: 16px;
+    }
+
+    .task-actions {
+        gap: 0;
+    }
+
+    .modal-header,
+    #task-form {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .modal-footer .btn {
+        flex: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
     }
 }
